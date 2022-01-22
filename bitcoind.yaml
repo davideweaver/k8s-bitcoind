@@ -1,7 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bitcoin
+  namespace: bitcoind
+spec:
+  selector:
+    app: bitcoin
+  ports:
+    - protocol: TCP
+      name: http
+      port: 8332
+      targetPort: 8332
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: bitcoin
+  namespace: bitcoind
 spec:
   serviceName: bitcoin
   replicas: 1 # Scale as match as you want
@@ -21,12 +36,16 @@ spec:
           volumeMounts:
             - name: bitcoin
               mountPath: /root/.bitcoin
+      imagePullSecrets:
+        - name: regcred
   volumeClaimTemplates:
     - metadata:
         name: bitcoin
       spec:
-        accessModes: [ "ReadWriteOnce" ]
         storageClassName: bitcoin-disk
+        accessModes:
+          - ReadWriteMany
+        volumeMode: Filesystem
         resources:
           requests:
             storage: 500Gi
