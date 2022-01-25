@@ -2,17 +2,21 @@ FROM debian:buster-slim as builder
 
 WORKDIR /root
 
-RUN apt update && apt install --yes wget && \
+RUN apt update && \
+    apt install -y wget build-essential autoconf libtool pkg-config bsdmainutils libboost-all-dev libevent-dev && \
     wget https://bitcoincore.org/bin/bitcoin-core-22.0/bitcoin-22.0.tar.gz && \
-    tar xzf bitcoin-22.0.tar.gz && mv bitcoin-22.0 bitcoin && \
-    rm -rf bitcoin-22.0.tar.gz
-
-RUN apt install --yes build-essential autoconf libtool pkg-config \
-    bsdmainutils libboost-all-dev libevent-dev
-
-RUN cd bitcoin && ./autogen.sh && ./configure --disable-wallet && \
-    make -j4 && make install && cd /root && rm -rf bitcoin && apt clean && \
-    rm /usr/local/bin/test_bitcoin && rm /usr/local/bin/bench_bitcoin
+    tar xzf bitcoin-22.0.tar.gz && \
+    mv bitcoin-22.0 bitcoin && \
+    cd bitcoin && \
+    ./autogen.sh && \
+    ./configure --disable-wallet && \
+    make -j4 && \
+    make install && \
+    cd .. && \
+    rm bitcoin-22.0.tar.gz && \
+    rm -rf bitcoin && \
+    rm /usr/local/bin/test_bitcoin && rm /usr/local/bin/bench_bitcoin && \
+    apt clean
 
 COPY ./bitcoin.conf /root/bitcoin.conf
 
