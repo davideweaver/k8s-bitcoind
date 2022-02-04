@@ -3,7 +3,7 @@ FROM debian:buster-slim as builder
 WORKDIR /root
 
 RUN apt update && \
-    apt install -y wget && \
+    apt install -y wget curl && \
     wget https://bitcoincore.org/bin/bitcoin-core-22.0/bitcoin-22.0-x86_64-linux-gnu.tar.gz && \
     tar xzf bitcoin-22.0-x86_64-linux-gnu.tar.gz && \
     mv bitcoin-22.0 bitcoin && \
@@ -16,4 +16,4 @@ COPY ./bitcoin.conf /root/bitcoin.conf
 
 EXPOSE 8332 8333
 
-CMD /usr/local/bin/bitcoind -testnet -conf=/root/bitcoin.conf -datadir=/data -debuglogfile=/root/debug.log
+CMD /bin/sh -c "/usr/local/bin/bitcoind -testnet -conf=/root/bitcoin.conf -datadir=/data -debuglogfile=/root/debug.log"
